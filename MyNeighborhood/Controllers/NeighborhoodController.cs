@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MyNeighborhood.Models;
-using System;
+﻿using MyNeighborhood.Models;
+
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MyNeighborhood.Controllers
 {
@@ -15,9 +14,15 @@ namespace MyNeighborhood.Controllers
         }
 
         [HttpGet]
-        public NeighborhoodResponse Get(NeighborhoodRequest neighborhoodRequest)
+        public IActionResult Get(NeighborhoodRequest neighborhoodRequest)
         {
             int dias;
+
+            if (neighborhoodRequest.dias <= 0 || neighborhoodRequest.lstCasas == null)
+            {
+                return BadRequest("El día y la lista de casas son requeridos.");
+            }
+
             List<int> lstCasasInicial = neighborhoodRequest.lstCasas;
 
             for (dias = 0; dias < neighborhoodRequest.dias; dias++)
@@ -25,11 +30,14 @@ namespace MyNeighborhood.Controllers
                 lstCasasInicial = CompareHouses(lstCasasInicial);
             }
 
-            return new NeighborhoodResponse {
+            NeighborhoodResponse neighborhoodResponse = new NeighborhoodResponse
+            {
                 dias = neighborhoodRequest.dias,
                 entrada = neighborhoodRequest.lstCasas,
                 salida = lstCasasInicial
             };
+
+            return Ok(neighborhoodResponse);
         }
 
         private List<int> CompareHouses(List<int> lstCasasInicial)
